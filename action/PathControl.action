@@ -1,0 +1,9 @@
+# Define the goal
+nav_msgs/Path path
+bool go_to_every_target
+---
+# Define the result
+---
+# Define a feedback message
+int32 targets_left
+float64 distance_to_next_target

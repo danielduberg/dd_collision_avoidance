@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+
+<launch>
+  <node pkg="nodelet" type="nodelet" name="converter_manager" args="manager" output="screen" />
+
+  <node pkg="nodelet" type="nodelet" name="laserscan_to_pointcloud_nodelet" args="load laserscan_to_pointcloud/LTP converter_manager" output="screen">
+    <param name="scan_topic" type="str" value="scan" />
+    <param name="cloud_topic" type="str" value="cloud" />
+  </node>
+</launch>

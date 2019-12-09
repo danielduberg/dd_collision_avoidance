@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<launch>
+  <node pkg="nodelet" type="nodelet" name="dd_manager" args="manager" output="screen" />
+
+  <node pkg="nodelet" type="nodelet" name="collision_avoidance_nodelet" args="load collision_avoidance/CA dd_manager" output="screen">
+    <param name="robot_frame" type="str" value="body_link" />
+    <param name="robot_height" type="double" value="0.5" />
+
+    <param name="radius" type="double" value="0.65" />
+    <param name="security_distance" type="double" value="0.8" />
+    <param name="epsilon" type="double" value="0.1" />
+
+    <param name="min_distance_hold" type="double" value="2.0" />
+    <param name="closest_distance" type="double" value="0.0" />
+    <param name="h_m" type="double" value="2.0" />
+
+    <param name="min_change_in_direction" type="double" value="-15.0" />
+    <param name="max_change_in_direction" type="double" value="45.0" />
+
+    <param name="min_opposite_direction" type="double" value="0.0" />
+    <param name="max_opposite_direction" type="double" value="60.0" />
+
+    <param name="max_data_age" type="double" value="1.0" />
+    <param name="polar_size" type="int" value="360" />
+
+    <param name="max_xy_vel" type="double" value="0.25" />
+    <param name="max_z_vel" type="double" value="0.25" />
+    <param name="max_yaw_rate" type="double" value="0.0" />
+
+    <param name="min_xy_vel" type="double" value="0.0" />
+    <param name="min_z_vel" type="double" value="0.0" />
+    <param name="min_yaw_rate" type="double" value="0.0" />
+
+    <rosparam param="obstacle_topics">[/cloud, /velodyne_points]</rosparam>
+    <rosparam param="360_sensor">[false, true]</rosparam>
+  </node>
+
+  <node pkg="nodelet" type="nodelet" name="dd_control_nodelet" args="load dd_control/Control dd_manager" output="screen">
+    <param name="output_frame" type="str" value="map" />
+
+    <param name="velocity_topic" type="str" value="/collision_free_control" />
+    <param name="setpoint_topic" type="str" value="/setpoint" />
+    <param name="rc_topic" type="str" value="/mavros/rc/in" />
+    <param name="pose_topic" type="str" value="/mavros/local_position/pose" />
+    <param name="current_velocity_topic" type="str" value="/mavros/local_position/velocity" />
+    <param name="odom_topic" type="str" value="/mavros/local_position/odom" />
+    <param name="out_topic" type="str" value="/mavros/setpoint_position/local" />
+
+    <param name="max_x_vel" type="double" value="1.0" />
+    <param name="max_y_vel" type="double" value="1.0" />
+    <param name="max_z_vel" type="double" value="1.0" />
+
+    <param name="k_p_x" type="double" value="1.0" />
+    <param name="k_p_y" type="double" value="1.0" />
+    <param name="k_p_z" type="double" value="1.0" />
+
+    <param name="frequency" type="double" value="10" />
+  </node>
+
+  <!-- <node pkg="tf" type="static_transform_publisher" name="velodyne_broadcaster" args="0.02 0 0.08 0 0 0 base_link velodyne_link 100" /> -->
+</launch>

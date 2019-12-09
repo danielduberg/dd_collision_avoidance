@@ -1,0 +1,7 @@
+<library path="lib/liblaserscan_to_pointcloud_nodelet">
+    <class name="laserscan_to_pointcloud/LTP" type="laserscan_to_pointcloud::LTPNodelet" base_class_type="nodelet::Nodelet">
+        <description>
+            This is my nodelet.
+        </description>
+    </class>
+</library>
