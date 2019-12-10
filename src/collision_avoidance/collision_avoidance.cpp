@@ -1,6 +1,8 @@
 #include <collision_avoidance/collision_avoidance.h>
 #include <collision_avoidance/no_input.h>
 
+#include <algorithm>
+
 #include <tf2/utils.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
