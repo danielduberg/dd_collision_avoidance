@@ -14,6 +14,22 @@
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/range_image/range_image.h>
 
+#if __cplusplus < 201703L // C++14 and earlier
+template<class T>
+constexpr const T& clamp( const T& v, const T& lo, const T& hi )
+{
+    assert( !(hi < lo) );
+    return (v < lo) ? lo : (hi < v) ? hi : v;
+}
+template<class T, class Compare>
+constexpr const T& clamp( const T& v, const T& lo, const T& hi, Compare comp )
+{
+    assert( !comp(hi, lo) );
+    return comp(v, lo) ? lo : comp(hi, v) ? hi : v;
+}
+#endif
+
+
 namespace collision_avoidance
 {
 CollisionAvoidance::CollisionAvoidance(ros::NodeHandle& nh, ros::NodeHandle& nh_priv)
@@ -291,15 +307,24 @@ bool CollisionAvoidance::avoidCollision(geometry_msgs::PoseStamped setpoint)
   // ROS_INFO("Direction change: %.2f (deg)", direction_change * 180.0 / M_PI);
 
   double direction = std::atan2(control_2d[1], control_2d[0]);
+#if __cplusplus < 201703L // C++14 and earlier
+  double magnitude = clamp(control_2d.norm(), -max_xy_vel_, max_xy_vel_);
+#else // C++17 and later
   double magnitude = std::clamp(control_2d.norm(), -max_xy_vel_, max_xy_vel_);
+#endif
 
   geometry_msgs::TwistStamped control;
   control.header.frame_id = robot_frame_id_;
   control.header.stamp = ros::Time::now();
   control.twist.linear.x = magnitude * std::cos(direction);
   control.twist.linear.y = magnitude * std::sin(direction);
+#if __cplusplus < 201703L // C++14 and earlier
+  control.twist.linear.z = clamp(setpoint.pose.position.z, -max_z_vel_, max_z_vel_);
+  control.twist.angular.z = clamp(yaw, -max_yaw_rate_, max_yaw_rate_);
+#else // C++17 and later
   control.twist.linear.z = std::clamp(setpoint.pose.position.z, -max_z_vel_, max_z_vel_);
   control.twist.angular.z = std::clamp(yaw, -max_yaw_rate_, max_yaw_rate_);
+#endif
 
   adjustVelocity(&control, obstacles);
   control_pub_.publish(control);
@@ -328,15 +353,24 @@ void CollisionAvoidance::noInput(geometry_msgs::PoseStamped setpoint) const
 
   Eigen::Vector2d control_2d(no_input::avoidCollision(goal, obstacles, radius_, min_distance_hold_));
   double direction = std::atan2(control_2d[1], control_2d[0]);
+#if __cplusplus < 201703L // C++14 and earlier
+  double magnitude = clamp(control_2d.norm(), -max_xy_vel_, max_xy_vel_);
+#else // C++17 and later
   double magnitude = std::clamp(control_2d.norm(), -max_xy_vel_, max_xy_vel_);
+#endif
 
   geometry_msgs::TwistStamped control;
   control.header.frame_id = robot_frame_id_;
   control.header.stamp = ros::Time::now();
   control.twist.linear.x = magnitude * std::cos(direction);
   control.twist.linear.y = magnitude * std::sin(direction);
+#if __cplusplus < 201703L // C++14 and earlier
+  control.twist.linear.z = clamp(setpoint.pose.position.z, -max_z_vel_, max_z_vel_);
+  control.twist.angular.z = clamp(tf2::getYaw(setpoint.pose.orientation), -max_yaw_rate_, max_yaw_rate_);
+#else // C++17 and later
   control.twist.linear.z = std::clamp(setpoint.pose.position.z, -max_z_vel_, max_z_vel_);
   control.twist.angular.z = std::clamp(tf2::getYaw(setpoint.pose.orientation), -max_yaw_rate_, max_yaw_rate_);
+#endif
 
   adjustVelocity(&control, obstacles);
   control_pub_.publish(control);
